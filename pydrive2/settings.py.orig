@@ -2,9 +2,9 @@ from yaml import load
 from yaml import YAMLError
 
 try:
-    from yaml import CSafeLoader as SafeLoader
+    from yaml import CLoader as Loader
 except ImportError:
-    from yaml import SafeLoader
+    from yaml import Loader
 
 SETTINGS_FILE = "settings.yaml"
 SETTINGS_STRUCT = {
@@ -104,7 +104,7 @@ def LoadSettingsFile(filename=SETTINGS_FILE):
     """
     try:
         with open(filename) as stream:
-            data = load(stream, Loader=SafeLoader)
+            data = load(stream, Loader=Loader)
     except (YAMLError, OSError) as e:
         raise SettingsError(e)
     return data
