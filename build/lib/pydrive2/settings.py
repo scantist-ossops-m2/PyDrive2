@@ -2,9 +2,9 @@ from yaml import load
 from yaml import YAMLError
 
 try:
-    from yaml import CSafeLoader as SafeLoader
+    from yaml import CLoader as Loader
 except ImportError:
-    from yaml import SafeLoader
+    from yaml import Loader
 
 SETTINGS_FILE = "settings.yaml"
 SETTINGS_STRUCT = {
@@ -77,12 +77,6 @@ SETTINGS_STRUCT = {
             "client_service_email": {"type": str, "required": False},
             "client_pkcs12_file_path": {"type": str, "required": False},
             "client_json_file_path": {"type": str, "required": False},
-            "client_json_dict": {
-                "type": dict,
-                "required": False,
-                "struct": {},
-            },
-            "client_json": {"type": str, "required": False},
         },
     },
     "oauth_scope": {
@@ -92,7 +86,7 @@ SETTINGS_STRUCT = {
         "default": ["https://www.googleapis.com/auth/drive"],
     },
     "save_credentials_file": {"type": str, "required": False},
-    "save_credentials_dict": {"type": dict, "required": False, "struct": {}},
+    "save_credentials_dict": {"type": dict, "required": False},
     "save_credentials_key": {"type": str, "required": False},
 }
 
@@ -114,7 +108,7 @@ def LoadSettingsFile(filename=SETTINGS_FILE):
     """
     try:
         with open(filename) as stream:
-            data = load(stream, Loader=SafeLoader)
+            data = load(stream, Loader=Loader)
     except (YAMLError, OSError) as e:
         raise SettingsError(e)
     return data
