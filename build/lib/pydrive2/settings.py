@@ -2,9 +2,9 @@ from yaml import load
 from yaml import YAMLError
 
 try:
-    from yaml import CSafeLoader as SafeLoader
+    from yaml import CLoader as Loader
 except ImportError:
-    from yaml import SafeLoader
+    from yaml import Loader
 
 SETTINGS_FILE = "settings.yaml"
 SETTINGS_STRUCT = {
@@ -36,9 +36,7 @@ SETTINGS_STRUCT = {
         "type": str,
         "required": False,
         "dependency": [
-            {"value": "file", "attribute": ["save_credentials_file"]},
-            {"value": "dictionary", "attribute": ["save_credentials_dict"]},
-            {"value": "dictionary", "attribute": ["save_credentials_key"]},
+            {"value": "file", "attribute": ["save_credentials_file"]}
         ],
     },
     "client_config": {
@@ -77,12 +75,6 @@ SETTINGS_STRUCT = {
             "client_service_email": {"type": str, "required": False},
             "client_pkcs12_file_path": {"type": str, "required": False},
             "client_json_file_path": {"type": str, "required": False},
-            "client_json_dict": {
-                "type": dict,
-                "required": False,
-                "struct": {},
-            },
-            "client_json": {"type": str, "required": False},
         },
     },
     "oauth_scope": {
@@ -92,8 +84,6 @@ SETTINGS_STRUCT = {
         "default": ["https://www.googleapis.com/auth/drive"],
     },
     "save_credentials_file": {"type": str, "required": False},
-    "save_credentials_dict": {"type": dict, "required": False, "struct": {}},
-    "save_credentials_key": {"type": str, "required": False},
 }
 
 
@@ -114,7 +104,7 @@ def LoadSettingsFile(filename=SETTINGS_FILE):
     """
     try:
         with open(filename) as stream:
-            data = load(stream, Loader=SafeLoader)
+            data = load(stream, Loader=Loader)
     except (YAMLError, OSError) as e:
         raise SettingsError(e)
     return data
@@ -167,7 +157,7 @@ def _ValidateSettingsElement(data, struct, key):
         else:
             data[key] = default
     # If data exists, Check type of the data
-    elif not isinstance(value, data_type):
+    elif type(value) is not data_type:
         raise InvalidConfigError(f"Setting {key} should be type {data_type}")
     # If type of this data is dict, check if structure of the data is valid.
     if data_type is dict:
@@ -175,7 +165,7 @@ def _ValidateSettingsElement(data, struct, key):
     # If type of this data is list, check if all values in the list is valid.
     elif data_type is list:
         for element in data[key]:
-            if not isinstance(element, struct[key]["struct"]):
+            if type(element) is not struct[key]["struct"]:
                 raise InvalidConfigError(
                     "Setting %s should be list of %s"
                     % (key, struct[key]["struct"])
